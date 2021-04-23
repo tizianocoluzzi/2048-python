@@ -1,5 +1,6 @@
 import random
 import pygame
+import os
 from constant import color
 pygame.font.init()
 
@@ -7,7 +8,8 @@ WIDTH, HEIGHT = 600, 600
 FPS = 60
 SPACING = 10
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
-font = pygame.font.SysFont('comicsans', 30)
+WIN.fill(color['BG'])
+font = pygame.font.SysFont('comicsans', 50)
 
 class table:
     score = 0
@@ -43,10 +45,11 @@ class table:
                 y = HEIGHT // 4 * j + SPACING
                 w = WIDTH // 4 - 2 * SPACING
                 h = HEIGHT // 4 - 2 * SPACING
-                pygame.draw.rect(WIN, color[self.v[i][j]], [(x,y), (w, h)], border_radius=16)
-                text = font.render(f'{self.v[i][j]}', True, (0, 0, 0))
-                placement = text.get_rect(center = (x + w / 2, y + h / 2))
-                WIN.blit(text, placement)
+                pygame.draw.rect(WIN, color[self.v[j][i]], [(x, y), (w, h)], border_radius=20)
+                if not self.v[j][i] == 1:
+                    text = font.render(f'{self.v[j][i]}', True, color['txt'])
+                    placement = text.get_rect(center=(x + w / 2, y + h / 2))
+                    WIN.blit(text, placement)
                 pygame.display.update()
 
     def sum(self, vals):
@@ -174,8 +177,9 @@ def main():
     clock = pygame.time.Clock()
     while check:
         clock.tick(FPS)
-        a = t.key_pressed()
         t.print_board()
+        pygame.display.flip()
+        a = t.key_pressed()
         t.get_move(a)
         if not t.check_zeros():
             check = t.lose()
