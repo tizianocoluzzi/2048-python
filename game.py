@@ -4,22 +4,29 @@ import os
 from constant import color
 pygame.font.init()
 
+N = 4
 WIDTH, HEIGHT = 600, 600
 FPS = 60
 SPACING = 10
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 WIN.fill(color['BG'])
 font = pygame.font.SysFont('comicsans', 50)
+clock = pygame.time.Clock()
 
 class table:
     score = 0
 
-    def __init__(self, n=4):
+    def __init__(self):
         # initialization of the matrix
-        self.n = n
-        self.v = [[] for _ in range(n)]
-        for i in range(n):
-            self.v[i] = [0 for _ in range(n)]
+        self.n = N
+        self.v = [[] for _ in range(N)]
+        for i in range(N):
+            self.v[i] = [0 for _ in range(N)]
+
+    def restart(self):
+        self.v = [[] for _ in range(N)]
+        for i in range(N):
+            self.v[i] = [0 for _ in range(N)]
 
     def check_zeros(self):
         for i in range(len(self.v)):
@@ -46,11 +53,17 @@ class table:
                 w = WIDTH // 4 - 2 * SPACING
                 h = HEIGHT // 4 - 2 * SPACING
                 pygame.draw.rect(WIN, color[self.v[j][i]], [(x, y), (w, h)], border_radius=20)
-                if not self.v[j][i] == 1:
+                if not self.v[j][i] == 0:
                     text = font.render(f'{self.v[j][i]}', True, color['txt'])
                     placement = text.get_rect(center=(x + w / 2, y + h / 2))
                     WIN.blit(text, placement)
                 pygame.display.update()
+
+    def starting_board(self):
+        self.print_board()
+        text = font.render("press any key to start", True, color['txt'])
+        placement = text.get_rect(center=(WIDTH / 2, HEIGHT / 2))
+        WIN.blit(text, placement)
 
     def sum(self, vals):
         summed = []
@@ -169,12 +182,9 @@ class table:
                     return True
         return False
 
-
 def main():
-    t = table()
     t.generation(q=2)
     check = True
-    clock = pygame.time.Clock()
     while check:
         clock.tick(FPS)
         t.print_board()
@@ -182,13 +192,28 @@ def main():
         a = t.key_pressed()
         t.get_move(a)
         if not t.check_zeros():
-            check = t.lose()
+            lose = t.lose()
+            starting()
+            check = False
         else:
             check = True
         if a:
             t.generation()
     pygame.quit()
 
-
+def starting():
+    check = True
+    t.restart()
+    while check:
+        clock.tick(FPS)
+        t.starting_board()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                check = False
+            elif event.type == pygame.KEYDOWN:
+                WIN.fill(color['BG'])
+                main()
+    pygame.quit()
 if __name__ == '__main__':
-    main()
+    t = table()
+    starting()
