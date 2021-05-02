@@ -1,4 +1,4 @@
-best_score = {'best_score': 0}
+best_score = {'best': 0}
 color = {0: (140, 140, 140),
          2: (255, 150, 150),
          4: (255, 100, 100),

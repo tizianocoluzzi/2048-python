@@ -2,15 +2,19 @@ import random
 import pygame
 import os
 from constant import color
+from constant import best_score
 pygame.font.init()
 
 N = 4
 WIDTH, HEIGHT = 600, 600
+PLUS_HEIGHT = 50
+F_HEIGHT = HEIGHT + PLUS_HEIGHT
 FPS = 60
 SPACING = 10
-WIN = pygame.display.set_mode((WIDTH, HEIGHT))
+WIN = pygame.display.set_mode((WIDTH, F_HEIGHT))
 WIN.fill(color['BG'])
 font = pygame.font.SysFont('comicsans', 50)
+font_starting = pygame.font.SysFont('comicsans', 70)
 clock = pygame.time.Clock()
 
 class table:
@@ -57,13 +61,25 @@ class table:
                     text = font.render(f'{self.v[j][i]}', True, color['txt'])
                     placement = text.get_rect(center=(x + w / 2, y + h / 2))
                     WIN.blit(text, placement)
+                score_text = font_starting.render(f'score:{self.score}', True, color['txt'])
+                placement2 = score_text.get_rect(bottomleft=(0, F_HEIGHT))
+                surface = pygame.Surface((WIDTH, PLUS_HEIGHT))
+                placement3 = surface.get_rect(bottomleft=(0, F_HEIGHT))
+                WIN.fill(color['BG'], placement3)
+                WIN.blit(score_text, placement2)
                 pygame.display.update()
 
     def starting_board(self):
-        self.print_board()
-        text = font.render("press any key to start", True, color['txt'])
+        text = font_starting.render("press any key to start", True, color['txt'])
         placement = text.get_rect(center=(WIDTH / 2, HEIGHT / 2))
         WIN.blit(text, placement)
+        pygame.display.update()
+
+    def lose_board(self):
+        text = font.render("you lose press any key to continue", True, color['txt'])
+        placement = text.get_rect(center=(WIDTH / 2, HEIGHT / 2))
+        WIN.blit(text, placement)
+        pygame.display.update()
 
     def sum(self, vals):
         summed = []
@@ -192,18 +208,33 @@ def main():
         a = t.key_pressed()
         t.get_move(a)
         if not t.check_zeros():
-            lose = t.lose()
-            starting()
-            check = False
+            if not t.lose():
+                losing()
+                check = False
         else:
             check = True
         if a:
             t.generation()
     pygame.quit()
 
+def losing():
+    check = True
+    t.print_board()
+    while check:
+        clock.tick(FPS)
+        t.lose_board()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                check = False
+            elif event.type == pygame.KEYDOWN:
+                WIN.fill(color['BG'])
+                starting()
+    pygame.quit()
+
 def starting():
     check = True
     t.restart()
+    t.print_board()
     while check:
         clock.tick(FPS)
         t.starting_board()
@@ -214,6 +245,7 @@ def starting():
                 WIN.fill(color['BG'])
                 main()
     pygame.quit()
+
 if __name__ == '__main__':
     t = table()
     starting()
