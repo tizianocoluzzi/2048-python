@@ -2,8 +2,11 @@ import random
 import pygame
 import os
 from constant import color
-from constant import best_score
 pygame.font.init()
+
+f = open("score.txt", 'r')
+best_score = f.read()
+f.close()
 
 N = 4
 WIDTH, HEIGHT = 600, 600
@@ -61,13 +64,19 @@ class table:
                     text = font.render(f'{self.v[j][i]}', True, color['txt'])
                     placement = text.get_rect(center=(x + w / 2, y + h / 2))
                     WIN.blit(text, placement)
-                score_text = font_starting.render(f'score:{self.score}', True, color['txt'])
-                placement2 = score_text.get_rect(bottomleft=(0, F_HEIGHT))
-                surface = pygame.Surface((WIDTH, PLUS_HEIGHT))
-                placement3 = surface.get_rect(bottomleft=(0, F_HEIGHT))
-                WIN.fill(color['BG'], placement3)
-                WIN.blit(score_text, placement2)
-                pygame.display.update()
+                self.print_texts()
+
+    def print_texts(self):
+        score_text = font_starting.render(f'score:{self.score}', True, color['txt'])
+        best_score_text = font_starting.render(f'best score:{best_score}', True, color['txt'])
+        placement_best_score = best_score_text.get_rect(bottomright=(WIDTH, F_HEIGHT))
+        placement2 = score_text.get_rect(bottomleft=(0, F_HEIGHT))
+        surface = pygame.Surface((WIDTH, PLUS_HEIGHT))
+        placement3 = surface.get_rect(bottomleft=(0, F_HEIGHT))
+        WIN.fill(color['BG'], placement3)
+        WIN.blit(score_text, placement2)
+        WIN.blit(best_score_text, placement_best_score)
+        pygame.display.update()
 
     def starting_board(self):
         text = font_starting.render("press any key to start", True, color['txt'])
