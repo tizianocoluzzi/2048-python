@@ -4,9 +4,8 @@ import os
 from constant import color
 pygame.font.init()
 
-f = open("score.txt", 'r')
-best_score = f.read()
-f.close()
+
+
 
 N = 4
 WIDTH, HEIGHT = 600, 600
@@ -220,10 +219,14 @@ def main():
             if not t.lose():
                 losing()
                 check = False
+                if t.score > best_score:
+                    with open("game/score.txt", 'w') as f:
+                        f.write(f'{t.score}')
         else:
             check = True
         if a:
             t.generation()
+
     pygame.quit()
 
 def losing():
@@ -256,5 +259,7 @@ def starting():
     pygame.quit()
 
 if __name__ == '__main__':
+    with open("game/score.txt", 'r') as f:
+        best_score = int(f.readline())
     t = table()
     starting()
