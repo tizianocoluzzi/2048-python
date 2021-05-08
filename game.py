@@ -2,10 +2,8 @@ import random
 import pygame
 import os
 from constant import color
+
 pygame.font.init()
-
-
-
 
 N = 4
 WIDTH, HEIGHT = 600, 600
@@ -19,6 +17,7 @@ font = pygame.font.SysFont('comicsans', 50)
 font_starting = pygame.font.SysFont('comicsans', 70)
 clock = pygame.time.Clock()
 
+
 class table:
     score = 0
 
@@ -30,11 +29,14 @@ class table:
             self.v[i] = [0 for _ in range(N)]
 
     def restart(self):
+        # resets everything
         self.v = [[] for _ in range(N)]
         for i in range(N):
             self.v[i] = [0 for _ in range(N)]
+        self.score = 0
 
     def check_zeros(self):
+        # returns true if there are at least one zero in the matrix
         for i in range(len(self.v)):
             g = 0 in self.v[i]
             if g:
@@ -42,6 +44,7 @@ class table:
         return False
 
     def generation(self, q=1):
+        # generates casual number in casual position
         a = random.randint(0, self.n - 1)
         b = random.randint(0, self.n - 1)
         if self.check_zeros():
@@ -52,6 +55,7 @@ class table:
                     self.generation()
 
     def print_board(self):
+        # prints the board, it takes the color form constant.py
         for i in range(self.n):
             for j in range(self.n):
                 x = WIDTH // 4 * i + SPACING
@@ -66,6 +70,7 @@ class table:
                 self.print_texts()
 
     def print_texts(self):
+        # prints the texts of score and best score
         score_text = font_starting.render(f'score:{self.score}', True, color['txt'])
         best_score_text = font_starting.render(f'best score:{best_score}', True, color['txt'])
         placement_best_score = best_score_text.get_rect(bottomright=(WIDTH, F_HEIGHT))
@@ -78,18 +83,21 @@ class table:
         pygame.display.update()
 
     def starting_board(self):
+        # prints the text of the starting board
         text = font_starting.render("press any key to start", True, color['txt'])
         placement = text.get_rect(center=(WIDTH / 2, HEIGHT / 2))
         WIN.blit(text, placement)
         pygame.display.update()
 
     def lose_board(self):
+        # prints the text of the lose board
         text = font.render("you lose press any key to continue", True, color['txt'])
         placement = text.get_rect(center=(WIDTH / 2, HEIGHT / 2))
         WIN.blit(text, placement)
         pygame.display.update()
 
     def sum(self, vals):
+        # sum the value of a line
         summed = []
         for i in range(len(vals)):
             summed.append([])
@@ -200,15 +208,27 @@ class table:
 
     def lose(self):
         # scanning rows and column to see if there are possible moves
-        for i in range(1, len(self.v)):
-            for j in range(1, len(self.v[i])):
-                if self.v[i][j] == self.v[i][j - 1] or self.v[i - 1][j] == self.v[i][j]:
+        for i in range(0, len(self.v)):
+            for j in range(0, len(self.v[i])-1):
+                if self.v[i][j] == self.v[i][j + 1]:
+                    return True
+        for i in range(0, len(self.v)-1):
+            for j in range(0, len(self.v[i])):
+                if self.v[i][j] == self.v[i+1][j]:
                     return True
         return False
+
+    def new_best_score(self):
+        # it should update the best score file but it doesn't works
+        if self.score > best_score:
+            with open("game/score.txt", "w") as f:
+                f.write("7")
+
 
 def main():
     t.generation(q=2)
     check = True
+
     while check:
         clock.tick(FPS)
         t.print_board()
@@ -218,16 +238,15 @@ def main():
         if not t.check_zeros():
             if not t.lose():
                 losing()
+                t.new_best_score()
                 check = False
-                if t.score > best_score:
-                    with open("game/score.txt", 'w') as f:
-                        f.write(f'{t.score}')
         else:
             check = True
         if a:
             t.generation()
 
     pygame.quit()
+
 
 def losing():
     check = True
@@ -243,6 +262,7 @@ def losing():
                 starting()
     pygame.quit()
 
+
 def starting():
     check = True
     t.restart()
@@ -257,6 +277,7 @@ def starting():
                 WIN.fill(color['BG'])
                 main()
     pygame.quit()
+
 
 if __name__ == '__main__':
     with open("game/score.txt", 'r') as f:
