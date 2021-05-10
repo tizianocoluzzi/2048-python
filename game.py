@@ -4,7 +4,6 @@ import os
 from constant import color
 
 pygame.font.init()
-
 N = 4
 WIDTH, HEIGHT = 600, 600
 PLUS_HEIGHT = 50
@@ -27,6 +26,16 @@ class table:
         self.v = [[] for _ in range(N)]
         for i in range(N):
             self.v[i] = [0 for _ in range(N)]
+
+    def reset_best_score(self):
+        # reset the best score
+        with open("game/score.txt", 'w') as f:
+            f.write('0')
+
+    def reading_best_score(self):
+        # reads the best score from a .txt file
+        with open("game/score.txt", 'r') as f:
+            self.best_score = int(f.readline())
 
     def restart(self):
         # resets everything
@@ -72,7 +81,7 @@ class table:
     def print_texts(self):
         # prints the texts of score and best score
         score_text = font_starting.render(f'score:{self.score}', True, color['txt'])
-        best_score_text = font_starting.render(f'best score:{best_score}', True, color['txt'])
+        best_score_text = font_starting.render(f'best score:{self.best_score}', True, color['txt'])
         placement_best_score = best_score_text.get_rect(bottomright=(WIDTH, F_HEIGHT))
         placement2 = score_text.get_rect(bottomleft=(0, F_HEIGHT))
         surface = pygame.Surface((WIDTH, PLUS_HEIGHT))
@@ -220,9 +229,9 @@ class table:
 
     def new_best_score(self):
         # it should update the best score file but it doesn't works
-        if self.score > best_score:
-            with open("game/score.txt", "w") as f:
-                f.write("7")
+        if self.score > self.best_score:
+            with open("game/score.txt", "w") as file:
+                file.write(f'{self.score}')
 
 
 def main():
@@ -237,8 +246,8 @@ def main():
         t.get_move(a)
         if not t.check_zeros():
             if not t.lose():
-                losing()
                 t.new_best_score()
+                losing()
                 check = False
         else:
             check = True
@@ -264,6 +273,7 @@ def losing():
 
 
 def starting():
+    t.reading_best_score()
     check = True
     t.restart()
     t.print_board()
@@ -280,7 +290,5 @@ def starting():
 
 
 if __name__ == '__main__':
-    with open("game/score.txt", 'r') as f:
-        best_score = int(f.readline())
     t = table()
     starting()
